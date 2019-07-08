@@ -89,5 +89,49 @@ class BST:
         return n
 
     # 삭제 연산
+    '''
+    get()의 탐색 과정과 같이 삭제할 노드를 찾은 후, 이진 탐색트리 조건을 만족하도록
+    삭제된 노드의 부모노드와 자식노드들을 연결해 주어야 한다.
+
+    삭제되는 노드 N
+    case 0 : 자식이 없는 경우   => N의 부모노드가 N을 가리키던 레퍼런스를 None으로 만든다 
+    case 1 : 자식이 하나인 경우 => N의 부모노드와 N의 자식노드를 직접 연결한다
+    case 2 : 자식이 둘인 경우   => N의 자리에 이진탐색트리를 중위순회하면서 N을 방문한 직후에
+                                방문되는 노드를 N의 자리로 옮긴다.
+    '''
+
     def delete(self, key):
-        pass
+        # 루트와 del_node()가 리턴하는 노드를 재연결
+        self.root = self.del_node(self.root, k)
+
+    def del_node(self, n, k):
+        if n == None:
+            return None
+
+        if n.key > k:
+            # n의 왼쪽자식과 del_node()가 리턴하는 노드를 재연결
+            n.left = self.del_node(n.left, k)
+
+        elif n.key < k:
+            # n의 오른쪽 자식과 del_node()가 리턴하는 노드를 재연결
+            n.right = self.del_node(n.right, k)
+
+        else:
+            if n.right == None:  # case 0 , case 1 (오른쪽자식이 None인 경우)
+                return n.left
+            if n.left == None:  # case 1 (왼쪽자식이 None인 경우)
+                return n.right
+
+            # case 2
+            # 삭제될 노드
+            target = n
+
+            # target의 중위후속자를 찾아 n이 참조하게 함
+            n = self.minimum(target.right)
+
+            # n의 오른쪽자식과 target의 오른쪽자식 연결
+            n.right = self.del_min(target.right)
+            # n의 왼쪽자식과 target의 왼쪽자식 연결
+            n.left = target.left
+
+        return n
